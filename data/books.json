@@ -1,0 +1,4 @@
+[
+  {"id":1,"type":"ebook","title":"Belajar PHP OOP","author":"Contoh Penulis","pricePerDay":2000,"available":true},
+  {"id":2,"type":"ebook","title":"Dasar Web Modern","author":"Contoh Penulis","pricePerDay":1500,"available":true}
+]
