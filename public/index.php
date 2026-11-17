@@ -4,17 +4,63 @@ declare(strict_types=1);
 require dirname(__DIR__) . '/src/autoload.php';
 
 use App\Core\Router;
+use App\Core\JsonStorage;
 use App\Core\View;
+use App\Services\AuthService;
 
 session_start();
 
+$auth = new AuthService(new JsonStorage(dirname(__DIR__) . '/data/users.json'));
 $router = new Router();
 $router
     ->add('home', fn () => View::render('home'))
-    // Tambahkan route modul lain di sini (diintegrasikan Ketua):
-    // ->add('catalog', fn () => ...)
-    // ->add('login', fn () => ...)
-    // ->add('transactions', fn () => ...)
+    ->add('register', function () use ($auth): void {
+        $error = null;
+        $name = '';
+        $email = '';
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $name = (string) ($_POST['name'] ?? '');
+            $email = (string) ($_POST['email'] ?? '');
+            try {
+                $auth->register($name, $email, (string) ($_POST['password'] ?? ''));
+                $_SESSION['flash'] = 'Pendaftaran berhasil. Silakan login.';
+                View::redirect('login');
+            } catch (InvalidArgumentException $exception) {
+                $error = $exception->getMessage();
+            }
+        }
+
+        View::render('auth/register', compact('error', 'name', 'email'));
+    })
+    ->add('login', function () use ($auth): void {
+        $error = null;
+        $email = '';
+        $message = $_SESSION['flash'] ?? null;
+        unset($_SESSION['flash']);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = (string) ($_POST['email'] ?? '');
+            $user = $auth->login($email, (string) ($_POST['password'] ?? ''));
+            if ($user !== null) {
+                View::redirect('home');
+            }
+            $error = 'Email atau password salah.';
+        }
+
+        View::render('auth/login', compact('error', 'email', 'message'));
+    })
+    ->add('logout', function () use ($auth): void {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            header('Allow: POST');
+            View::render('404');
+            return;
+        }
+
+        $auth->logout();
+        View::redirect('home');
+    })
 ;
 
 $router->dispatch($_GET['page'] ?? 'home');
