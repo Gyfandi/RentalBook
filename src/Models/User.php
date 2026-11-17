@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-/** KONTRAK - dikerjakan Anggota 3. */
+/** Pengguna dasar; role ditentukan oleh class turunannya. */
 abstract class User
 {
     public function __construct(
@@ -16,6 +16,7 @@ abstract class User
     public function getId(): int { return $this->id; }
     public function getName(): string { return $this->name; }
     public function getEmail(): string { return $this->email; }
+
     public function verifyPassword(string $plain): bool
     {
         return password_verify($plain, $this->passwordHash);
