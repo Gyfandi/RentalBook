@@ -7,10 +7,15 @@ use App\Core\Router;
 use App\Core\JsonStorage;
 use App\Core\View;
 use App\Services\AuthService;
+use App\Services\TransactionService;
 
 session_start();
 
 $auth = new AuthService(new JsonStorage(dirname(__DIR__) . '/data/users.json'));
+$trxService = new TransactionService(
+    new JsonStorage(dirname(__DIR__) . '/data/transactions.json'),
+    new JsonStorage(dirname(__DIR__) . '/data/books.json'),
+);
 $router = new Router();
 $router
     ->add('home', fn () => View::render('home'))
@@ -60,6 +65,16 @@ $router
 
         $auth->logout();
         View::redirect('home');
+    })
+    ->add('transactions', function () use ($auth, $trxService): void {
+        $user = $auth->currentUser();
+        if ($user === null) {
+            View::redirect('login');
+        }
+
+        $transactions = $trxService->history($user->getId());
+        $titles = $trxService->mediaTitles();
+        View::render('transactions/history', compact('transactions', 'titles'));
     })
 ;
 
