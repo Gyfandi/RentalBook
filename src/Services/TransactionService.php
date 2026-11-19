@@ -88,6 +88,16 @@ class TransactionService
         return array_reverse(array_map([Transaction::class, 'fromArray'], array_values($rows)));
     }
 
+    /** @return array<int, string> peta id media => judul */
+    public function mediaTitles(): array
+    {
+        $titles = [];
+        foreach ($this->books->all() as $row) {
+            $titles[(int) $row['id']] = (string) $row['title'];
+        }
+        return $titles;
+    }
+
     /** @return Transaction[] semua transaksi (untuk admin) */
     public function all(): array
     {
@@ -109,24 +119,23 @@ class TransactionService
         }
 
         return match ($row['type']) {
-    'ebook' => new EBook(
-        (int) $row['id'],
-        (string) $row['title'],
-        (string) $row['author'],
-        (float) $row['pricePerDay'],
-        (bool) $row['available'],
-        (string) ($row['format'] ?? 'pdf'),
-    ),
-     'journal' => new Journal(
-        (int) $row['id'],
-        (string) $row['title'],
-        (string) $row['author'],
-        (float) $row['pricePerDay'],
-        (bool) $row['available'],
-        (int) ($row['volume'] ?? 1),
-        ),
-        
-    default => throw new RuntimeException("Tipe media tidak dikenal: {$row['type']}"),
-};
+            'ebook' => new EBook(
+                (int) $row['id'],
+                (string) $row['title'],
+                (string) $row['author'],
+                (float) $row['pricePerDay'],
+                (bool) $row['available'],
+                (string) ($row['format'] ?? 'pdf'),
+            ),
+            'journal' => new Journal(
+                (int) $row['id'],
+                (string) $row['title'],
+                (string) $row['author'],
+                (float) $row['pricePerDay'],
+                (bool) $row['available'],
+                (int) ($row['volume'] ?? 1),
+            ),
+            default => throw new RuntimeException("Tipe media tidak dikenal: {$row['type']}"),
+        };
     }
 }
