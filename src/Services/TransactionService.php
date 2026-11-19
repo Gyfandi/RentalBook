@@ -5,6 +5,7 @@ namespace App\Services;
 
 use App\Core\JsonStorage;
 use App\Models\EBook;
+use App\Models\Journal;
 use App\Models\Media;
 use App\Models\Transaction;
 use InvalidArgumentException;
@@ -116,6 +117,15 @@ class TransactionService
         (bool) $row['available'],
         (string) ($row['format'] ?? 'pdf'),
     ),
+     'journal' => new Journal(
+        (int) $row['id'],
+        (string) $row['title'],
+        (string) $row['author'],
+        (float) $row['pricePerDay'],
+        (bool) $row['available'],
+        (int) ($row['volume'] ?? 1),
+        ),
+        
     default => throw new RuntimeException("Tipe media tidak dikenal: {$row['type']}"),
 };
     }
