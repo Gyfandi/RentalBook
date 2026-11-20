@@ -1,4 +1,5 @@
 [
-  {"id":1,"type":"ebook","title":"Belajar PHP OOP","author":"Contoh Penulis","pricePerDay":2000,"available":true},
-  {"id":2,"type":"ebook","title":"Dasar Web Modern","author":"Contoh Penulis","pricePerDay":1500,"available":true}
+  {"id":1,"type":"ebook","title":"Belajar PHP OOP","author":"Contoh Penulis","pricePerDay":2000,"available":true,"format":"pdf"},
+  {"id":2,"type":"ebook","title":"Dasar Web Modern","author":"Contoh Penulis","pricePerDay":1500,"available":true,"format":"epub"},
+  {"id":3,"type":"journal","title":"Jurnal Teknologi Informasi","author":"Tim Redaksi","pricePerDay":3000,"available":true,"volume":4}
 ]
