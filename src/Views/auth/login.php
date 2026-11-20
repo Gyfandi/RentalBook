@@ -4,6 +4,7 @@ $error = $error ?? null;
 $email = $email ?? '';
 ?>
 <section aria-labelledby="login-title">
+    <div class="auth-card">
     <h1 id="login-title">Login</h1>
 
     <?php if ($message !== null): ?>
@@ -25,6 +26,7 @@ $email = $email ?? '';
         </div>
         <button type="submit">Login</button>
     </form>
+    </div>
 
-    <p>Belum punya akun? <a href="index.php?page=register">Daftar</a></p>
+    <p class="auth-switch">Belum punya akun? <a href="index.php?page=register">Daftar</a></p>
 </section>
