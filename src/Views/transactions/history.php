@@ -5,7 +5,7 @@ use App\Core\View;
     <h1>Riwayat Transaksi</h1>
 
     <?php if (empty($transactions)): ?>
-        <p>Belum ada transaksi.</p>
+        <p class="empty-state">Belum ada transaksi.</p>
     <?php else: ?>
         <div class="table-wrap">
             <table>
@@ -30,8 +30,14 @@ use App\Core\View;
                             <td><?= $trx->getDays() ?> hari</td>
                             <td><?= $trx->getDueDate()->format('Y-m-d H:i') ?></td>
                             <td>Rp<?= number_format($trx->getCost(), 0, ',', '.') ?></td>
-                            <td>Rp<?= number_format($trx->getLateFee(), 0, ',', '.') ?></td>
-                            <td><?= $trx->isActive() ? 'Dipinjam' : 'Dikembalikan' ?></td>
+                            <td class="<?= $trx->getLateFee() > 0 ? 'is-late' : 'is-zero' ?>">Rp<?= number_format($trx->getLateFee(), 0, ',', '.') ?></td>
+                            <td>
+                                <?php if ($trx->isActive()): ?>
+                                    <span class="badge badge-busy">Dipinjam</span>
+                                <?php else: ?>
+                                    <span class="badge badge-ok">Dikembalikan</span>
+                                <?php endif; ?>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

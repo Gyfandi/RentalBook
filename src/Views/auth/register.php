@@ -4,6 +4,7 @@ $name = $name ?? '';
 $email = $email ?? '';
 ?>
 <section aria-labelledby="register-title">
+    <div class="auth-card">
     <h1 id="register-title">Buat akun</h1>
 
     <?php if ($error !== null): ?>
@@ -29,5 +30,6 @@ $email = $email ?? '';
         <button type="submit">Daftar</button>
     </form>
 
-    <p>Sudah punya akun? <a href="index.php?page=login">Login</a></p>
+    <p class="auth-switch">Sudah punya akun? <a href="index.php?page=login">Login</a></p>
+    </div>
 </section>
