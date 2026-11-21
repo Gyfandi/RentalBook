@@ -5,6 +5,7 @@ use App\Core\View;
 /** @var string $type */
 /** @var bool $availableOnly */
 /** @var bool $isAdmin */
+$loggedIn = !empty($_SESSION['user_id']);
 ?>
 <section>
     <h1>Katalog</h1>
@@ -40,13 +41,22 @@ use App\Core\View;
                 <p><?= View::e($m->getAuthor()) ?> &middot; <?= $m->getType() === 'ebook' ? 'E-Book' : 'Jurnal' ?></p>
                 <p>Rp <?= number_format($m->getPricePerDay(), 0, ',', '.') ?> / hari</p>
                 <p><?= $m->isAvailable() ? 'Tersedia' : 'Sedang dipinjam' ?></p>
-                <?php if ($isAdmin): ?>
-                    <a href="index.php?page=catalog_form&amp;id=<?= $m->getId() ?>">Edit</a>
-                    <form method="post" action="index.php?page=catalog_delete" style="display:inline">
-                        <input type="hidden" name="id" value="<?= $m->getId() ?>">
-                        <button type="submit" class="js-confirm" data-confirm="Hapus media ini?">Hapus</button>
-                    </form>
-                <?php endif; ?>
+                <div class="card-actions">
+                    <?php if ($loggedIn): ?>
+                        <button type="button" class="js-borrow" <?= $m->isAvailable() ? '' : 'disabled' ?>
+                                data-id="<?= $m->getId() ?>" data-title="<?= View::e($m->getTitle()) ?>"
+                                data-price="<?= $m->getPricePerDay() ?>" data-type="<?= View::e($m->getType()) ?>">Pinjam</button>
+                    <?php else: ?>
+                        <a class="btn btn-outline" href="index.php?page=login">Login untuk pinjam</a>
+                    <?php endif; ?>
+                    <?php if ($isAdmin): ?>
+                        <a class="btn btn-outline" href="index.php?page=catalog_form&amp;id=<?= $m->getId() ?>">Edit</a>
+                        <form method="post" action="index.php?page=catalog_delete" class="inline-form">
+                            <input type="hidden" name="id" value="<?= $m->getId() ?>">
+                            <button type="submit" class="js-confirm" data-confirm="Hapus media ini?">Hapus</button>
+                        </form>
+                    <?php endif; ?>
+                </div>
             </article>
         <?php endforeach; ?>
         </div>

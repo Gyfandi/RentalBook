@@ -315,6 +315,196 @@ function initMediaForm() {
     sync();
 }
 
+/* ---------- 7. Modal pinjam (katalog) ---------- */
+const MAX_RENTAL_DAYS = 30;
+const formatRupiah = (n) => 'Rp' + Math.round(n).toLocaleString('id-ID');
+
+// Sama dengan Journal::rentalCost() di backend: diskon 20% untuk sewa >= 7 hari (hanya jurnal)
+const JOURNAL_DISCOUNT = 0.2;
+const JOURNAL_DISCOUNT_MIN_DAYS = 7;
+
+function estimateCost(price, type, days) {
+    const base = price * days;
+    return type === 'journal' && days >= JOURNAL_DISCOUNT_MIN_DAYS ? base * (1 - JOURNAL_DISCOUNT) : base;
+}
+
+function openBorrowDialog({ id, title, price, type }) {
+    const dialog = document.createElement('dialog');
+    dialog.className = 'confirm-dialog';
+    dialog.setAttribute('aria-labelledby', 'borrow-title');
+
+    const form = document.createElement('form');
+    form.method = 'post';
+    form.action = 'index.php?page=borrow';
+
+    const heading = document.createElement('h2');
+    heading.id = 'borrow-title';
+    heading.textContent = 'Pinjam media';
+
+    const name = document.createElement('p');
+    name.className = 'borrow-name';
+    name.textContent = title;
+
+    const mediaId = document.createElement('input');
+    mediaId.type = 'hidden';
+    mediaId.name = 'media_id';
+    mediaId.value = id;
+
+    const label = document.createElement('label');
+    label.htmlFor = 'borrow-days';
+    label.textContent = 'Durasi sewa (hari)';
+
+    const days = document.createElement('input');
+    days.type = 'number';
+    days.id = 'borrow-days';
+    days.name = 'days';
+    days.min = '1';
+    days.max = String(MAX_RENTAL_DAYS);
+    days.step = '1';
+    days.value = '7';
+    days.required = true;
+
+    const estimate = document.createElement('div');
+    estimate.className = 'borrow-estimate';
+    estimate.setAttribute('aria-live', 'polite');
+    const estLabel = document.createElement('span');
+    estLabel.className = 'est-label';
+    const estValue = document.createElement('span');
+    estValue.className = 'est-value';
+    estimate.append(estLabel, estValue);
+
+    const promo = document.createElement('p');
+    promo.className = 'borrow-promo';
+    promo.hidden = type !== 'journal';
+
+    const hint = document.createElement('p');
+    hint.className = 'borrow-hint';
+    hint.textContent = 'Denda keterlambatan Rp1.000 per hari.';
+
+    const actions = document.createElement('div');
+    actions.className = 'dialog-actions';
+
+    const cancel = document.createElement('button');
+    cancel.type = 'button';
+    cancel.className = 'btn-outline';
+    cancel.textContent = 'Batal';
+    cancel.addEventListener('click', () => dialog.close());
+
+    const submit = document.createElement('button');
+    submit.type = 'submit';
+    submit.textContent = 'Konfirmasi';
+
+    const refresh = () => {
+        const value = Number(days.value);
+        const valid = Number.isInteger(value) && value >= 1 && value <= MAX_RENTAL_DAYS;
+        submit.disabled = !valid;
+        days.setAttribute('aria-invalid', valid ? 'false' : 'true');
+        estValue.replaceChildren();
+
+        if (!valid) {
+            estLabel.textContent = `Durasi harus 1-${MAX_RENTAL_DAYS} hari.`;
+            estimate.classList.remove('is-discounted');
+            promo.classList.remove('is-active');
+            promo.textContent = `Sewa ${JOURNAL_DISCOUNT_MIN_DAYS} hari atau lebih, dapat diskon ${JOURNAL_DISCOUNT * 100}%.`;
+            return;
+        }
+        estLabel.textContent = 'Estimasi biaya';
+
+        const base = Number(price) * value;
+        const total = estimateCost(Number(price), type, value);
+        const discounted = total < base;
+
+        if (discounted) {
+            const old = document.createElement('s');
+            old.className = 'est-old';
+            old.textContent = formatRupiah(base);
+            estValue.append(old);
+        }
+        const now = document.createElement('strong');
+        now.className = 'est-new';
+        now.textContent = formatRupiah(total);
+        estValue.append(now);
+        if (discounted) {
+            const badge = document.createElement('span');
+            badge.className = 'est-badge';
+            badge.textContent = `Hemat ${JOURNAL_DISCOUNT * 100}%`;
+            estValue.append(badge);
+        }
+
+        estimate.classList.toggle('is-discounted', discounted);
+        promo.classList.toggle('is-active', discounted);
+        promo.textContent = discounted
+            ? `Diskon ${JOURNAL_DISCOUNT * 100}% diterapkan: sewa jurnal ${JOURNAL_DISCOUNT_MIN_DAYS} hari atau lebih.`
+            : `Sewa ${JOURNAL_DISCOUNT_MIN_DAYS} hari atau lebih, dapat diskon ${JOURNAL_DISCOUNT * 100}%.`;
+    };
+    days.addEventListener('input', refresh);
+
+    actions.append(cancel, submit);
+    form.append(heading, name, mediaId, label, days, estimate, promo, hint, actions);
+    dialog.append(form);
+
+    dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) dialog.close();
+    });
+    dialog.addEventListener('close', () => dialog.remove());
+
+    document.body.append(dialog);
+    refresh();
+    dialog.showModal();
+    days.focus();
+    days.select();
+}
+
+function initBorrowDialog() {
+    document.addEventListener('click', (event) => {
+        const trigger = event.target.closest('.js-borrow');
+        if (!trigger || trigger.disabled) return;
+        openBorrowDialog(trigger.dataset);
+    });
+}
+
+/* ---------- 8. Filter & cari riwayat transaksi ---------- */
+function initTransactionFilter() {
+    const rows = $$('#tx-rows tr');
+    if (rows.length === 0) return;
+
+    const chips = $$('.chip[data-filter]');
+    const search = $('#tx-search');
+    const count = $('#tx-count');
+    const empty = $('#tx-empty');
+    const wrap = $('.table-wrap');
+    let status = 'all';
+
+    const apply = () => {
+        const keyword = search ? search.value.trim().toLowerCase() : '';
+        let visible = 0;
+
+        rows.forEach((row) => {
+            const match = (status === 'all' || row.dataset.status === status)
+                && (keyword === '' || (row.dataset.title ?? '').toLowerCase().includes(keyword));
+            row.hidden = !match;
+            if (match) visible += 1;
+        });
+
+        if (count) count.textContent = `Menampilkan ${visible} dari ${rows.length} transaksi`;
+        if (empty) empty.hidden = visible !== 0;
+        if (wrap) wrap.hidden = visible === 0;
+    };
+
+    chips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+            status = chip.dataset.filter;
+            chips.forEach((c) => {
+                const active = c === chip;
+                c.classList.toggle('is-active', active);
+                c.setAttribute('aria-pressed', String(active));
+            });
+            apply();
+        });
+    });
+    if (search) search.addEventListener('input', debounce(apply));
+}
+
 /* ---------- Inisialisasi ---------- */
 initNavToggle();
 initFlashToasts();
@@ -322,3 +512,5 @@ initConfirmButtons();
 initCatalogFilter();
 initFormValidation();
 initMediaForm();
+initBorrowDialog();
+initTransactionFilter();

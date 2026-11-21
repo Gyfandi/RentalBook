@@ -1,5 +1,137 @@
 [
-  {"id":1,"type":"ebook","title":"Belajar PHP OOP","author":"Contoh Penulis","pricePerDay":2000,"available":true,"format":"pdf"},
-  {"id":2,"type":"ebook","title":"Dasar Web Modern","author":"Contoh Penulis","pricePerDay":1500,"available":true,"format":"epub"},
-  {"id":3,"type":"journal","title":"Jurnal Teknologi Informasi","author":"Tim Redaksi","pricePerDay":3000,"available":true,"volume":4}
+    {
+        "id": 1,
+        "type": "ebook",
+        "title": "Belajar PHP OOP",
+        "author": "Contoh Penulis",
+        "pricePerDay": 2000,
+        "available": true,
+        "format": "pdf"
+    },
+    {
+        "id": 2,
+        "type": "ebook",
+        "title": "Dasar Web Modern",
+        "author": "Contoh Penulis",
+        "pricePerDay": 1500,
+        "available": true,
+        "format": "epub"
+    },
+    {
+        "id": 3,
+        "type": "journal",
+        "title": "Jurnal Teknologi Informasi",
+        "author": "Tim Redaksi",
+        "pricePerDay": 3000,
+        "available": false,
+        "volume": 4
+    },
+    {
+        "id": 4,
+        "type": "ebook",
+        "title": "Struktur Data dan Algoritma dengan Java",
+        "author": "Rina Maharani",
+        "pricePerDay": 2500,
+        "available": true,
+        "format": "pdf"
+    },
+    {
+        "id": 5,
+        "type": "ebook",
+        "title": "Pengantar Basis Data Relasional",
+        "author": "Budi Santoso",
+        "pricePerDay": 2000,
+        "available": true,
+        "format": "epub"
+    },
+    {
+        "id": 6,
+        "type": "ebook",
+        "title": "Keamanan Jaringan untuk Pemula",
+        "author": "Dimas Prakoso",
+        "pricePerDay": 2500,
+        "available": true,
+        "format": "pdf"
+    },
+    {
+        "id": 7,
+        "type": "ebook",
+        "title": "Pemrograman Python Praktis",
+        "author": "Sari Wulandari",
+        "pricePerDay": 1500,
+        "available": true,
+        "format": "pdf"
+    },
+    {
+        "id": 8,
+        "type": "ebook",
+        "title": "Desain Antarmuka dan Pengalaman Pengguna",
+        "author": "Nadia Putri",
+        "pricePerDay": 2000,
+        "available": true,
+        "format": "epub"
+    },
+    {
+        "id": 9,
+        "type": "ebook",
+        "title": "Rekayasa Perangkat Lunak Modern",
+        "author": "Agus Hartono",
+        "pricePerDay": 3000,
+        "available": true,
+        "format": "pdf"
+    },
+    {
+        "id": 10,
+        "type": "journal",
+        "title": "Jurnal Sistem Informasi dan Komputasi",
+        "author": "Tim Redaksi",
+        "pricePerDay": 3500,
+        "available": true,
+        "volume": 12
+    },
+    {
+        "id": 11,
+        "type": "journal",
+        "title": "Jurnal Rekayasa Perangkat Lunak Indonesia",
+        "author": "Tim Redaksi",
+        "pricePerDay": 3000,
+        "available": true,
+        "volume": 7
+    },
+    {
+        "id": 12,
+        "type": "journal",
+        "title": "Jurnal Keamanan Siber Nusantara",
+        "author": "Tim Redaksi",
+        "pricePerDay": 4000,
+        "available": true,
+        "volume": 2
+    },
+    {
+        "id": 13,
+        "type": "ebook",
+        "title": "Jaringan Komputer dan Subnetting",
+        "author": "Fajar Nugroho",
+        "pricePerDay": 2000,
+        "available": true,
+        "format": "pdf"
+    },
+    {
+        "id": 14,
+        "type": "ebook",
+        "title": "Grafika Komputer dengan Python",
+        "author": "Lestari Ayu",
+        "pricePerDay": 2500,
+        "available": true,
+        "format": "epub"
+    },
+    {
+        "id": 15,
+        "type": "journal",
+        "title": "Jurnal Kecerdasan Buatan dan Data",
+        "author": "Tim Redaksi",
+        "pricePerDay": 3500,
+        "available": true,
+        "volume": 5
+    }
 ]
