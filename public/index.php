@@ -25,7 +25,7 @@ $trxService = new TransactionService(
 );
 $router = new Router();
 $router
-    ->add('home', fn () => View::render('home'))
+    ->add('home', fn () => View::render('home', ['featured' => array_slice($catalog->all(), 0, 3)]))
     ->add('catalog', function () use ($catalog, $isAdmin): void {
         $q = (string) ($_GET['q'] ?? '');
         $type = (string) ($_GET['type'] ?? '');
@@ -121,6 +121,43 @@ $router
 
         $auth->logout();
         View::redirect('home');
+    })
+    ->add('borrow', function () use ($auth, $trxService): void {
+        $user = $auth->currentUser();
+        if ($user === null) {
+            View::redirect('login');
+        }
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            try {
+                $trxService->borrow($user->getId(), (int) ($_POST['media_id'] ?? 0), (int) ($_POST['days'] ?? 0));
+                $_SESSION['flash'] = 'Peminjaman berhasil.';
+                View::redirect('transactions');
+            } catch (InvalidArgumentException | RuntimeException $exception) {
+                $_SESSION['flash'] = $exception->getMessage();
+            }
+        }
+        View::redirect('catalog');
+    })
+    ->add('return', function () use ($auth, $trxService): void {
+        $user = $auth->currentUser();
+        if ($user === null) {
+            View::redirect('login');
+        }
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $trx = $trxService->find((int) ($_POST['id'] ?? 0));
+            // hanya pemilik transaksi yang boleh mengembalikan
+            if ($trx !== null && $trx->getUserId() === $user->getId()) {
+                try {
+                    $returned = $trxService->returnBook($trx->getId());
+                    $_SESSION['flash'] = $returned->getLateFee() > 0
+                        ? 'Buku dikembalikan. Denda keterlambatan Rp' . number_format($returned->getLateFee(), 0, ',', '.') . '.'
+                        : 'Buku berhasil dikembalikan.';
+                } catch (RuntimeException $exception) {
+                    $_SESSION['flash'] = $exception->getMessage();
+                }
+            }
+        }
+        View::redirect('transactions');
     })
     ->add('transactions', function () use ($auth, $trxService): void {
         $user = $auth->currentUser();
